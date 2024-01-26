@@ -26,6 +26,7 @@ const powerball5 = {
             powerball5.getResult()
             console.log('miniGames', miniGames)
         }
+
         // powerball5.createGame()
     },
     initGame: () => {
@@ -56,30 +57,44 @@ const powerball5 = {
     getResult: () => {
         miniGames[0].resultTime = `Time: ${tempTime}:${tempSec}`
     },
+    showResult: () => {
+        const currentTimeString = `Time: ${tempTime}:${tempSec}`;
+        miniGames.forEach(game => {
+            if (!game.resultTime) {
+                const gameTimeMoment = moment(game.gameTime, 'Time: HH:mm');
+                const currentTimeMoment = moment(currentTimeString, 'Time: HH:mm');
+    
+                if (currentTimeMoment.isSameOrAfter(gameTimeMoment)) {
+                    game.resultTime = currentTimeString;
+                    console.log(`Result Time Updated for Round ${game.round}: ${game.resultTime}`);
+                }
+            }
+        });
+    },
 
-  scrapeData: () => {
-    tempTime++
-    try {
-      const now = moment()
-      const minutes = now.minutes()
-      const seconds = now.seconds()
-      const roundId = powerball5.generateRoundId(interval)
+//   scrapeData: () => {
+//     tempTime++
+//     try {
+//       const now = moment()
+//       const minutes = now.minutes()
+//       const seconds = now.seconds()
+//       const roundId = powerball5.generateRoundId(interval)
 
-      if ((minutes + 1) % interval === 0 && seconds === 35) {
-        const result = {
-          gameName: game,
-          date: now.format('YYYY-MM-DD'),
-          round: roundId,
-          gameDateTime: now.format('YYYY-MM-DDTHH:mm:ss.SSS') 
-        };
+//       if ((minutes + 1) % interval === 0 && seconds === 35) {
+//         const result = {
+//           gameName: game,
+//           date: now.format('YYYY-MM-DD'),
+//           round: roundId,
+//           gameDateTime: now.format('YYYY-MM-DDTHH:mm:ss.SSS') 
+//         };
 
-        console.log(result)
-      }
+//         console.log(result)
+//       }
 
-    } catch (err) {
-      console.error(`An error occurred - ${game}:`, err)
-    }
-  },
+//     } catch (err) {
+//       console.error(`An error occurred - ${game}:`, err)
+//     }
+//   },
   
 
   generateRoundId: (minute) => {

@@ -4,41 +4,45 @@ let game
 let timerCountDown
 let previousGames = []
 var varResult
+let now = moment()
+let hours = now.hours()
+let minutes = now.minutes()
+let seconds = now.seconds()
 
 
 const powerball5 = {
-    start: () => {
-        createGame()
-        showGame()
+    start: async() => {
+        powerball5.createGame(minutes)
+        powerball5.showGame()
         setInterval(powerball5.main, 1000)
     },
     
     main: () => {
-        const now = moment()
-        const minutes = now.minutes()
-        const seconds = now.seconds()
+        now = moment()
+        hours = now.hours()
+        minutes = now.minutes()
+        seconds = now.seconds()
 
-        if(minutes % interval === 0 && seconds === 35) {
-            getResult()
+        if((minutes + 1) % interval === 0 && seconds === 35) {
+            powerball5.getResult()
         }
-        if(minutes % interval === 0 && seconds === 50) {
-            if(varResult) {
-                showResult()
-            }
-            createGame()
-            showGame()
+        if((minutes + 1) % interval === 0 && seconds === 55) {
+            powerball5.showResult()
+            powerball5.createGame(minutes + 1)
+            powerball5.showGame()
         }
-    },
+     },
 
-    createGame: () => {
-        const now = moment()
-        const round = Math.floor(now.hours() * 60 + now.minutes()) / interval
+    createGame: (min) => {
+        const round = powerball5.getRound((hours * 3600) + (min * 60) + seconds) / (interval * 60)
         if(!previousGames.some(g => g.round === round)) {
+            const gameDateTime = now.clone().add(5, 'minutes').seconds(0)
             game = {
                 round: round,
-                gameDate: now.toISOString().split('T')[0],
-                result: [],
-                regDateTime: now.toISOString().replace('T', '').substring(0,19),
+                result: null,
+                gameDate: now.format('YYYY-MM-DD'),
+                regDateTime: now.format('YYYY-MM-DD HH:mm:ss'), 
+                gameDateTime: gameDateTime.format('YYYY-MM-DD HH:mm:ss'),
                 resultDateTime: null
             }
         }
@@ -46,22 +50,47 @@ const powerball5 = {
 
     showGame: () => {
         timerCountDown = interval * 60
-        console.log(game)
-        console.log("Timer countdown:" + timerCountDown + "seconds")
+        console.log("NEW GAME: ", game)
+        // console.log("Timer countdown:" + timerCountDown + "seconds")
     },
     getResult: () => {
+        var min = 1
+        var max = 28
+        var result = [ 
+            Math.floor(Math.random() * (max - min) + min),
+            Math.floor(Math.random() * (max - min) + min),
+            Math.floor(Math.random() * (max - min) + min),
+            Math.floor(Math.random() * (max - min) + min),
+            Math.floor(Math.random() * (max - min) + min),
+        ]
+        let gameDateTimeMoment = moment(game.gameDateTime, 'YYYY-MM-DD HH:mm:ss')
+        let resultDateTime = gameDateTimeMoment.add(5, 'seconds').format('YYYY-MM-DD HH:mm:ss')
 
+        game.result = result
+        game.resultDateTime = resultDateTime
+        previousGames.push({...game})
     },
-
+    getRound: (v) => {
+        var sec = v
+        while (sec % (interval * 60) != 0){
+            sec++
+        }
+        return sec
+    },
     // getResult: () => {
     //     miniGames[0].resultTime = `Time: ${tempTime}:${tempSec}`
     // },
-    showResult: () => {
-        const now = moment()
-        game.result = varResult
-        game.resultDateTime = now.toISOString().replace('T', '').substring(0, 19)
-        previousGames.push(game)
-        console.log(game)
+    delay: (duration) => {
+        return new Promise(resolve => setTimeout(resolve, duration))
+    },
+    showResult: async() => {
+        // const now = moment()
+        // game.result = varResult
+        // game.resultDateTime = now.toISOString().replace('T', '').substring(0, 19)
+        // previousGames.push(game)
+        // console.log(game)
+        console.log("RESULTS: ", previousGames)
+        await powerball5.delay(10000)
     },
 
 
@@ -119,9 +148,9 @@ const powerball5 = {
 
 //   return roundId
 }
-setInterval(() => {
-  console.log(generateRoundId(5))
-}, 100000)
+// setInterval(() => {
+//   console.log(generateRoundId(5))
+// }, 100000)
 
 module.exports = powerball5
 

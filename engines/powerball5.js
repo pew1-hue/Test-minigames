@@ -25,7 +25,7 @@ const powerball5 = {
         if((minutes + 1) % interval === 0 && seconds === 35) {
             powerball5.getResult()
         }
-        if((minutes + 1) % interval === 0 && seconds === 55) {
+        if((minutes + 1) % interval === 0 && seconds === 50) {
             powerball5.showResult()
             powerball5.createGame(minutes + 1)
             powerball5.showGame()
@@ -62,20 +62,20 @@ const powerball5 = {
             let thirdNum = parseInt(rData.ball[2])
             let fourthNum = parseInt(rData.ball[3])
             let fifthNum = parseInt(rData.ball[4])
-
-            const results = [firstNum, secondNum, thirdNum, fourthNum, fifthNum]
+            let sixthNum = parseInt(rData.ball[5])
+            const results = [firstNum, secondNum, thirdNum, fourthNum, fifthNum, sixthNum]
 
             
             let gameDateTimeMoment = moment(game.gameDateTime, 'YYYY-MM-DD HH:mm:ss')
-            let resultDateTime = gameDateTimeMoment.add(5, 'seconds').format('YYYY-MM-DD HH:mm:ss')
+            let resultDateTime = gameDateTimeMoment.add(10, 'seconds').format('YYYY-MM-DD HH:mm:ss')
 
-            game = { // Update the current game object
+            game = { 
                 ...game,
                 result: results,
                 resultDateTime: resultDateTime
             }
 
-            // Add the game to previousGames for logging in showResult
+         
             previousGames.push({...game})
         } catch (error) {
             console.error('Error fetching game results:', error)

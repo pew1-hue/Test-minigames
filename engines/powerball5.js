@@ -1,14 +1,13 @@
 const moment = require('moment-timezone')
+const axios = require('axios')
 const interval = 5
 let game
 let timerCountDown
 let previousGames = []
-var varResult
 let now = moment()
 let hours = now.hours()
 let minutes = now.minutes()
 let seconds = now.seconds()
-
 
 const powerball5 = {
     start: async() => {
@@ -36,7 +35,7 @@ const powerball5 = {
     createGame: (min) => {
         const round = powerball5.getRound((hours * 3600) + (min * 60) + seconds) / (interval * 60)
         if(!previousGames.some(g => g.round === round)) {
-            const gameDateTime = now.clone().add(5, 'minutes').seconds(0)
+            const gameDateTime = now.clone().add(5, 'minutes').seconds(35)
             game = {
                 round: round,
                 result: null,
@@ -47,28 +46,40 @@ const powerball5 = {
             }
         }
     },
-
+    
     showGame: () => {
         timerCountDown = interval * 60
         console.log("NEW GAME: ", game)
         // console.log("Timer countdown:" + timerCountDown + "seconds")
     },
-    getResult: () => {
-        var min = 1
-        var max = 28
-        var result = [ 
-            Math.floor(Math.random() * (max - min) + min),
-            Math.floor(Math.random() * (max - min) + min),
-            Math.floor(Math.random() * (max - min) + min),
-            Math.floor(Math.random() * (max - min) + min),
-            Math.floor(Math.random() * (max - min) + min),
-        ]
-        let gameDateTimeMoment = moment(game.gameDateTime, 'YYYY-MM-DD HH:mm:ss')
-        let resultDateTime = gameDateTimeMoment.add(5, 'seconds').format('YYYY-MM-DD HH:mm:ss')
+    getResult: async () => {
+        try {
+            const response = await axios.get('https://named.com/data/minigame/nball/powerball5/result.json')
+            const rData = response.data
 
-        game.result = result
-        game.resultDateTime = resultDateTime
-        previousGames.push({...game})
+            let firstNum = parseInt(rData.ball[0])
+            let secondNum = parseInt(rData.ball[1])
+            let thirdNum = parseInt(rData.ball[2])
+            let fourthNum = parseInt(rData.ball[3])
+            let fifthNum = parseInt(rData.ball[4])
+
+            const results = [firstNum, secondNum, thirdNum, fourthNum, fifthNum]
+
+            
+            let gameDateTimeMoment = moment(game.gameDateTime, 'YYYY-MM-DD HH:mm:ss')
+            let resultDateTime = gameDateTimeMoment.add(5, 'seconds').format('YYYY-MM-DD HH:mm:ss')
+
+            game = { // Update the current game object
+                ...game,
+                result: results,
+                resultDateTime: resultDateTime
+            }
+
+            // Add the game to previousGames for logging in showResult
+            previousGames.push({...game})
+        } catch (error) {
+            console.error('Error fetching game results:', error)
+        }
     },
     getRound: (v) => {
         var sec = v

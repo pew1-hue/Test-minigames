@@ -1,42 +1,44 @@
-const moment = require('moment-timezone')
+const dayjs = require('dayjs')
 const axios = require('axios')
+const endpoint = 'https://named.com/data/minigame/nball/powerball5/result.json'
 const interval = 5
 let game
 let timerCountDown
 let previousGames = []
-let now = moment()
-let hours = now.hours()
-let minutes = now.minutes()
-let seconds = now.seconds()
+let now = dayjs()
+let hours = now.hour()
+let minutes = now.minute()
+let seconds = now.second()
 
-const powerball5 = {
+
+const powerBall5 = {
     start: async() => {
-        powerball5.createGame(minutes)
-        powerball5.showGame()
-        setInterval(powerball5.main, 1000)
+        powerBall5.createGame(minutes)
+        powerBall5.showGame()
+        setInterval(powerBall5.main, 1000)
     },
     
     main: () => {
-        now = moment()
-        hours = now.hours()
-        minutes = now.minutes()
-        seconds = now.seconds()
-
+        now = dayjs()
+        hours = now.hour()
+        minutes = now.minute()
+        seconds = now.second()
         if((minutes + 1) % interval === 0 && seconds === 35) {
-            powerball5.getResult()
+            powerBall5.getResult()
         }
-        if((minutes + 1) % interval === 0 && seconds === 50) {
-            powerball5.showResult()
-            powerball5.createGame(minutes + 1)
-            powerball5.showGame()
+        if((minutes + 1) % interval === 0 && seconds === 40) {
+            powerBall5.showResult()
+            powerBall5.createGame(minutes + 1)
+            powerBall5.showGame()
         }
      },
 
     createGame: (min) => {
-        const round = powerball5.getRound((hours * 3600) + (min * 60) + seconds) / (interval * 60)
+        const round = powerBall5.getRound((hours * 3600) + (min * 60) + seconds) / (interval * 60)
         if(!previousGames.some(g => g.round === round)) {
-            const gameDateTime = now.clone().add(5, 'minutes').seconds(35)
+            const gameDateTime = now.clone().add(5, 'minutes').second(35)
             game = {
+                gameName:'namedPowerball5',
                 round: round,
                 result: null,
                 gameDate: now.format('YYYY-MM-DD'),
@@ -54,7 +56,9 @@ const powerball5 = {
     },
     getResult: async () => {
         try {
-            const response = await axios.get('https://named.com/data/minigame/nball/powerball5/result.json')
+            const timeStamp = Date.now()
+            const urlWithTimestamp = `${endpoint}?_=${timeStamp}`
+            const response = await axios.get(urlWithTimestamp)
             const rData = response.data
 
             let firstNum = parseInt(rData.ball[0])
@@ -66,8 +70,8 @@ const powerball5 = {
             const results = [firstNum, secondNum, thirdNum, fourthNum, fifthNum, sixthNum]
 
             
-            let gameDateTimeMoment = moment(game.gameDateTime, 'YYYY-MM-DD HH:mm:ss')
-            let resultDateTime = gameDateTimeMoment.add(10, 'seconds').format('YYYY-MM-DD HH:mm:ss')
+            let gameDateTimeDayjs = dayjs(game.gameDateTime, 'YYYY-MM-DD HH:mm:ss')
+            let resultDateTime = gameDateTimeDayjs.add(15, 'seconds').format('YYYY-MM-DD HH:mm:ss')
 
             game = { 
                 ...game,
@@ -101,7 +105,7 @@ const powerball5 = {
         // previousGames.push(game)
         // console.log(game)
         console.log("RESULTS: ", previousGames)
-        await powerball5.delay(10000)
+        await powerBall5.delay(10000)
     },
 
 
@@ -163,8 +167,8 @@ const powerball5 = {
 //   console.log(generateRoundId(5))
 // }, 100000)
 
-module.exports = powerball5
+module.exports = powerBall5
 
-powerball5.start()
+powerBall5.start()
 
 

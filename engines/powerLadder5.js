@@ -97,7 +97,15 @@ const powerLadder5 = {
         console.log("RESULTS: ", previousGames)
         await powerLadder5.delay(10000)
     },
-
+    convertSmallLetter: (term) => {
+        const BigToSmall = {
+            'ODD': 'odd',
+            'EVEN': 'even',
+            'LEFT': 'left',
+            'RIGHT': 'right',
+        }
+        return BigToSmall[term] || term
+    }
 }
 
 module.exports = powerLadder5
